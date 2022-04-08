@@ -1,5 +1,9 @@
 # Should run only on branches and PR, as "on_tag.yml" will handle tags
 on:
+  push:
+    branches: master test
+  pull_request:
+    branches: master
   workflow_dispatch:
 
 jobs:
@@ -37,7 +41,7 @@ jobs:
           mingw-w64-${{ matrix.arch }}-iconv
           mingw-w64-${{ matrix.arch }}-imagemagick
           mingw-w64-${{ matrix.arch }}-python
-          base-devel git xmlto
+          base-devel git xmlto zip
           autoconf libtool automake gettext make autoconf-archive pkg-config docbook-xsl
 
     - uses: actions/checkout@v2
@@ -52,7 +56,27 @@ jobs:
       shell: msys2 {0}
       run:
         make
-    - name: install
+
+    - name: generating zip
+      shell: msys2 {0}
+      run: |
+        DESTDIR=${PWD}/win_${{ matrix.arch }}-${{ matrix.video }} make install
+        (cd ${PWD}/win_${{ matrix.arch }}-${{ matrix.video }}; zip -r ../zbar-win_${{ matrix.arch }}-${{ matrix.video }}.zip .)
+        cd ..
+
+    - name: generating sha256 hash
       shell: msys2 {0}
       run:
-        make install
+        sha256sum zbar-win_${{ matrix.arch }}-${{ matrix.video }}.zip > hashes.txt
+
+    - name: upload windows artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: zbar-win_${{ matrix.arch }}-${{ matrix.video }}
+        path: ./zbar-win_${{ matrix.arch }}-${{ matrix.video }}.zip
+
+    - name: upload windows artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: hashes
+        path: ./hashes.txt
