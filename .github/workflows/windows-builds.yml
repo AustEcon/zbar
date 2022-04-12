@@ -80,3 +80,9 @@ jobs:
       with:
         name: hashes
         path: ./hashes.txt
+
+    - name: upload windows artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: hashes
+        path: ./include/config.h
