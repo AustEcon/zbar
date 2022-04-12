@@ -50,7 +50,7 @@ jobs:
       shell: msys2 {0}
       run: |
         autoreconf -vfi
-        ./configure LDFLAGS="-static" --with-x=no --enable-video=yes --with-jpeg=no --with-directshow=yes --disable-dependency-tracking --enable-pthread=no --enable-doc=no --with-python=no --with-gtk=no --with-qt=no --with-java=no --with-imagemagick=no --with-dbus=no --enable-codes=qrcode ${{ matrix.extra }}
+        ./configure --enable-shared --disable-static --with-x=no --enable-video=yes --with-jpeg=no --with-directshow=yes --disable-dependency-tracking --enable-pthread=no --enable-doc=no --with-python=no --with-gtk=no --with-qt=no --with-java=no --with-imagemagick=no --with-dbus=no --enable-codes=qrcode ${{ matrix.extra }}
 
     - name: build
       shell: msys2 {0}
