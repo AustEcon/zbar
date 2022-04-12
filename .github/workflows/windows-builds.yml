@@ -23,7 +23,7 @@ jobs:
             msystem: MINGW64
             grep: x86-64
           - video: VfW
-            extra:
+            extra: --disable-silent-rules
     defaults:
       run:
         shell: msys2 {0}
@@ -39,8 +39,6 @@ jobs:
         install: >-
           mingw-w64-${{ matrix.arch }}-gcc
           mingw-w64-${{ matrix.arch }}-iconv
-          mingw-w64-${{ matrix.arch }}-imagemagick
-          mingw-w64-${{ matrix.arch }}-python
           base-devel git xmlto zip
           autoconf libtool automake gettext make autoconf-archive pkg-config docbook-xsl
 
@@ -50,7 +48,10 @@ jobs:
       shell: msys2 {0}
       run: |
         autoreconf -vfi
-        ./configure --enable-shared --disable-static --with-x=no --enable-video=yes --with-jpeg=no --with-directshow=yes --disable-dependency-tracking --enable-pthread=no --enable-doc=no --with-python=no --with-gtk=no --with-qt=no --with-java=no --with-imagemagick=no --with-dbus=no --enable-codes=qrcode ${{ matrix.extra }}
+        echo "zbarcam_zbarcam_CPPFLAGS += -Wl,-Wc,-static" >> zbarcam/Makefile.am.inc
+        echo "libzbar_la_LDFLAGS += -Wc,-static" >> zbar/Makefile.am
+        echo "LDFLAGS += -Wc,-static" >> Makefile.am
+        ./configure --enable-shared --disable-static --with-x=no --enable-video=yes --with-jpeg=no --with-directshow=yes --disable-dependency-tracking --disable-pthread --enable-doc=no --with-python=no --with-gtk=no --with-qt=no --with-java=no --with-imagemagick=no --with-dbus=no --enable-codes=qrcode ${{ matrix.extra }}
 
     - name: build
       shell: msys2 {0}
@@ -80,9 +81,3 @@ jobs:
       with:
         name: hashes
         path: ./hashes.txt
-
-    - name: upload windows artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: hashes
-        path: ./include/config.h
